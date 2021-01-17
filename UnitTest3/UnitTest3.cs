@@ -1,11 +1,10 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ver1;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using Zadanie3;
 
-namespace ver1UnitTests
+namespace UnitTests3
 {
-
     public class ConsoleRedirectionToStringWriter : IDisposable
     {
         private StringWriter stringWriter;
@@ -30,21 +29,20 @@ namespace ver1UnitTests
         }
     }
 
-
     [TestClass]
-    public class UnitTestCopier
-    {
+    public class UnitTest3 
+    { 
         [TestMethod]
-        public void Copier_GetState_StateOff()
+        public void MultidimensionalDevice_GetState_StateOff()
         {
             var copier = new Copier();
             copier.PowerOff();
 
-            Assert.AreEqual(IDevice.State.off, copier.GetState()); 
+            Assert.AreEqual(IDevice.State.off, copier.GetState());
         }
 
         [TestMethod]
-        public void Copier_GetState_StateOn()
+        public void MultidimensionalDevice_GetState_StateOn()
         {
             var copier = new Copier();
             copier.PowerOn();
@@ -52,30 +50,43 @@ namespace ver1UnitTests
             Assert.AreEqual(IDevice.State.on, copier.GetState());
         }
 
-
-        // weryfikacja, czy po wywołaniu metody `Print` i włączonej kopiarce w napisie pojawia się słowo `Print`
-        // wymagane przekierowanie konsoli do strumienia StringWriter
         [TestMethod]
-        public void Copier_Print_DeviceOn()
+        public void MultidimensionalDevice_Print_DeviceOn_PrinterOn()
         {
             var copier = new Copier();
             copier.PowerOn();
-
+            copier.TurnPrinterOn();
             var currentConsoleOut = Console.Out;
             currentConsoleOut.Flush();
-            using( var consoleOutput = new ConsoleRedirectionToStringWriter() )
+            using (var consoleOutput = new ConsoleRedirectionToStringWriter())
             {
                 IDocument doc1 = new PDFDocument("aaa.pdf");
                 copier.Print(in doc1);
                 Assert.IsTrue(consoleOutput.GetOutput().Contains("Print"));
             }
-            Assert.AreEqual(currentConsoleOut, Console.Out);   
+            Assert.AreEqual(currentConsoleOut, Console.Out);
         }
 
-        // weryfikacja, czy po wywołaniu metody `Print` i wyłączonej kopiarce w napisie NIE pojawia się słowo `Print`
+        [TestMethod]
+        public void MultidimensionalDevice_Print_DeviceOn_PrinterOff()
+        {
+            var copier = new Copier();
+            copier.PowerOn();
+            var currentConsoleOut = Console.Out;
+            currentConsoleOut.Flush();
+            using (var consoleOutput = new ConsoleRedirectionToStringWriter())
+            {
+                IDocument doc1 = new PDFDocument("aaa.pdf");
+                copier.Print(in doc1);
+                Assert.IsFalse(consoleOutput.GetOutput().Contains("Print"));
+            }
+            Assert.AreEqual(currentConsoleOut, Console.Out);
+        }
+
+        // weryfikacja, czy po wywo³aniu metody `Print` i wy³¹czonej kopiarce w napisie NIE pojawia siê s³owo `Print`
         // wymagane przekierowanie konsoli do strumienia StringWriter
         [TestMethod]
-        public void Copier_Print_DeviceOff()
+        public void MultidimensionalDevice_Print_DeviceOff()
         {
             var copier = new Copier();
             copier.PowerOff();
@@ -91,10 +102,10 @@ namespace ver1UnitTests
             Assert.AreEqual(currentConsoleOut, Console.Out);
         }
 
-        // weryfikacja, czy po wywołaniu metody `Scan` i wyłączonej kopiarce w napisie NIE pojawia się słowo `Scan`
+        // weryfikacja, czy po wywo³aniu metody `Scan` i wy³¹czonej kopiarce w napisie NIE pojawia siê s³owo `Scan`
         // wymagane przekierowanie konsoli do strumienia StringWriter
         [TestMethod]
-        public void Copier_Scan_DeviceOff()
+        public void MultidimensionalDevice_Scan_DeviceOff()
         {
             var copier = new Copier();
             copier.PowerOff();
@@ -110,13 +121,14 @@ namespace ver1UnitTests
             Assert.AreEqual(currentConsoleOut, Console.Out);
         }
 
-        // weryfikacja, czy po wywołaniu metody `Scan` i wyłączonej kopiarce w napisie pojawia się słowo `Scan`
+        // weryfikacja, czy po wywo³aniu metody `Scan` i wy³¹czonej kopiarce w napisie pojawia siê s³owo `Scan`
         // wymagane przekierowanie konsoli do strumienia StringWriter
         [TestMethod]
-        public void Copier_Scan_DeviceOn()
+        public void MultidimensionalDevice_Scan_DeviceOn_ScannerOn()
         {
             var copier = new Copier();
             copier.PowerOn();
+            copier.TurnScannerOn();
 
             var currentConsoleOut = Console.Out;
             currentConsoleOut.Flush();
@@ -129,13 +141,31 @@ namespace ver1UnitTests
             Assert.AreEqual(currentConsoleOut, Console.Out);
         }
 
-        // weryfikacja, czy wywołanie metody `Scan` z parametrem określającym format dokumentu
-        // zawiera odpowiednie rozszerzenie (`.jpg`, `.txt`, `.pdf`)
         [TestMethod]
-        public void Copier_Scan_FormatTypeDocument()
+        public void MultidimensionalDevice_Scan_DeviceOn_ScannerOff()
         {
             var copier = new Copier();
             copier.PowerOn();
+
+            var currentConsoleOut = Console.Out;
+            currentConsoleOut.Flush();
+            using (var consoleOutput = new ConsoleRedirectionToStringWriter())
+            {
+                IDocument doc1;
+                copier.Scan(out doc1);
+                Assert.IsFalse(consoleOutput.GetOutput().Contains("Scan"));
+            }
+            Assert.AreEqual(currentConsoleOut, Console.Out);
+        }
+
+        // weryfikacja, czy wywo³anie metody `Scan` z parametrem okreœlaj¹cym format dokumentu
+        // zawiera odpowiednie rozszerzenie (`.jpg`, `.txt`, `.pdf`)
+        [TestMethod]
+        public void MultidimensionalDevice_Scan_FormatTypeDocument()
+        {
+            var copier = new Copier();
+            copier.PowerOn(); Console.WriteLine("base");
+            copier.TurnScannerOn(); Console.WriteLine("Scanner");
 
             var currentConsoleOut = Console.Out;
             currentConsoleOut.Flush();
@@ -158,14 +188,16 @@ namespace ver1UnitTests
         }
 
 
-        // weryfikacja, czy po wywołaniu metody `ScanAndPrint` i wyłączonej kopiarce w napisie pojawiają się słowa `Print`
+        // weryfikacja, czy po wywo³aniu metody `ScanAndPrint` i wy³¹czonej kopiarce w napisie pojawiaj¹ siê s³owa `Print`
         // oraz `Scan`
         // wymagane przekierowanie konsoli do strumienia StringWriter
         [TestMethod]
-        public void Copier_ScanAndPrint_DeviceOn()
+        public void MultidimensionalDevice_ScanAndPrint_DeviceOn_PrinterOn_ScannerOn()
         {
             var copier = new Copier();
             copier.PowerOn();
+            copier.TurnPrinterOn();
+            copier.TurnScannerOn();
 
             var currentConsoleOut = Console.Out;
             currentConsoleOut.Flush();
@@ -178,11 +210,48 @@ namespace ver1UnitTests
             Assert.AreEqual(currentConsoleOut, Console.Out);
         }
 
-        // weryfikacja, czy po wywołaniu metody `ScanAndPrint` i wyłączonej kopiarce w napisie NIE pojawia się słowo `Print`
-        // ani słowo `Scan`
+        [TestMethod]
+        public void MultidimensionalDevice_ScanAndPrint_DeviceOn_PrinterOn_ScannerOff()
+        {
+            var copier = new Copier();
+            copier.PowerOn();
+            copier.TurnPrinterOn();
+
+            var currentConsoleOut = Console.Out;
+            currentConsoleOut.Flush();
+            using (var consoleOutput = new ConsoleRedirectionToStringWriter())
+            {
+                copier.ScanAndPrint();
+                Assert.IsFalse(consoleOutput.GetOutput().Contains("Scan"));
+                Assert.IsFalse(consoleOutput.GetOutput().Contains("Print"));
+            }
+            Assert.AreEqual(currentConsoleOut, Console.Out);
+        }
+
+        // w tym wypadku kopiarka mo¿e zeskanowaæ dokument, ale jako, ¿e drukarka jest wy³¹czona, nie wydrukuje go
+        [TestMethod]
+        public void MultidimensionalDevice_ScanAndPrint_DeviceOn_PrinterOff_ScannerOn()
+        {
+            var copier = new Copier();
+            copier.PowerOn();
+            copier.TurnScannerOn();
+
+            var currentConsoleOut = Console.Out;
+            currentConsoleOut.Flush();
+            using (var consoleOutput = new ConsoleRedirectionToStringWriter())
+            {
+                copier.ScanAndPrint();
+                Assert.IsTrue(consoleOutput.GetOutput().Contains("Scan"));
+                Assert.IsFalse(consoleOutput.GetOutput().Contains("Print"));
+            }
+            Assert.AreEqual(currentConsoleOut, Console.Out);
+        }
+
+        // weryfikacja, czy po wywo³aniu metody `ScanAndPrint` i wy³¹czonej kopiarce w napisie NIE pojawia siê s³owo `Print`
+        // ani s³owo `Scan`
         // wymagane przekierowanie konsoli do strumienia StringWriter
         [TestMethod]
-        public void Copier_ScanAndPrint_DeviceOff()
+        public void MultidimensionalDevice_ScanAndPrint_DeviceOff()
         {
             var copier = new Copier();
             copier.PowerOff();
@@ -199,10 +268,11 @@ namespace ver1UnitTests
         }
 
         [TestMethod]
-        public void Copier_PrintCounter()
+        public void MultidimensionalDevice_PrintCounter()
         {
             var copier = new Copier();
             copier.PowerOn();
+            copier.TurnPrinterOn();
 
             IDocument doc1 = new PDFDocument("aaa.pdf");
             copier.Print(in doc1);
@@ -216,6 +286,9 @@ namespace ver1UnitTests
             copier.Scan(out doc1);
             copier.PowerOn();
 
+            copier.TurnScannerOn();
+            copier.TurnPrinterOn();
+
             copier.ScanAndPrint();
             copier.ScanAndPrint();
 
@@ -224,10 +297,11 @@ namespace ver1UnitTests
         }
 
         [TestMethod]
-        public void Copier_ScanCounter()
+        public void MultidimensionalDevice_ScanCounter()
         {
             var copier = new Copier();
             copier.PowerOn();
+            copier.TurnScannerOn();
 
             IDocument doc1;
             copier.Scan(out doc1);
@@ -242,6 +316,9 @@ namespace ver1UnitTests
             copier.Scan(out doc1);
             copier.PowerOn();
 
+            copier.TurnScannerOn();
+            copier.TurnPrinterOn();
+
             copier.ScanAndPrint();
             copier.ScanAndPrint();
 
@@ -250,7 +327,7 @@ namespace ver1UnitTests
         }
 
         [TestMethod]
-        public void Copier_PowerOnCounter()
+        public void MultidimensionalDevice_PowerOnCounter()
         {
             var copier = new Copier();
             copier.PowerOn();
@@ -281,6 +358,5 @@ namespace ver1UnitTests
             // 3 włączenia
             Assert.AreEqual(3, copier.Counter);
         }
-
     }
 }

@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
-namespace ver1
+namespace Zadanie1
 {
     public interface IDocument
     {
-        enum FormatType {TXT, PDF, JPG}
+        enum FormatType { TXT, PDF, JPG }
 
         /// <summary>
         /// Zwraca typ formatu dokumentu
@@ -14,12 +14,13 @@ namespace ver1
         /// <summary>
         /// Zwraca nazwę pliku dokumentu - nie może być `null` ani pusty `string`
         /// </summary>
-        string GetFileName();        
+        string GetFileName();
     }
+
     public abstract class AbstractDocument : IDocument
     {
         private string fileName;
-        public AbstractDocument(string fileName) =>  this.fileName = fileName;
+        public AbstractDocument(string fileName) => this.fileName = fileName;
 
         public string GetFileName() => fileName;
 
@@ -31,19 +32,19 @@ namespace ver1
     public class PDFDocument : AbstractDocument
     {
         public PDFDocument(string filename) : base(filename) { }
-        public override IDocument.FormatType GetFormatType() => IDocument.FormatType.PDF;        
+        public override IDocument.FormatType GetFormatType() => IDocument.FormatType.PDF;
     }
 
     public class ImageDocument : AbstractDocument
     {
         public ImageDocument(string filename) : base(filename) { }
-        public override IDocument.FormatType GetFormatType() => IDocument.FormatType.JPG;  
+        public override IDocument.FormatType GetFormatType() => IDocument.FormatType.JPG;
     }
 
     public class TextDocument : AbstractDocument
     {
         public TextDocument(string filename) : base(filename) { }
-        public override IDocument.FormatType GetFormatType() => IDocument.FormatType.TXT;  
+        public override IDocument.FormatType GetFormatType() => IDocument.FormatType.TXT;
     }
 
 }
